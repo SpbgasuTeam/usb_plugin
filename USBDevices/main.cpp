@@ -1,14 +1,30 @@
 #include "XPacket.h"
+#include "readCOMPorts.h"
+
+void printParsedPacket(XPacket parsedPacket);
+
 
 int main() {
     // ѕример использовани€ функции Parse
-    std::vector<uint8_t> packetData = { 0xAF, 0xAA, 0xAF, 0x01, 0x02, 0x03, 0x0C, 0x07, 0x07, 0x07, 0x07,0x07,0x07,0x07,0x07,0x07,0x07, 0xFF, 0x00 };
-                                      //3 бита протокола /тип /подтип/ id  /длина /контент                                            /закрывающие биты         
-    XPacket parsedPacket = XPacket::Parse(packetData);
+    //std::vector<uint8_t> packetData = { 0xAF, 0xAA, 0xAF, 0x01, 0x02, 0x03, 0x09,      0x05, 0x00, 0x05, 0x01, 0x08, 0x00, 0x00, 0x08, 0x05,          0xFF, 0x00 };
+    //                                  //3 бита протокола /тип /подтип/ id  /длина контента                   /контент                                /закрывающие биты         
+    //XPacket parsedPacket = XPacket::Parse(packetData);
+    //printParsedPacket(parsedPacket);
+    
+    
+    readComPorts();
 
+
+    return 0;
+}
+
+
+
+void printParsedPacket(XPacket parsedPacket) {
     // ¬ывод данных распарсенного пакета
     std::cout << "Parsed Packet Type: " << +parsedPacket.PacketType << std::endl;
     std::cout << "Parsed Packet Subtype: " << +parsedPacket.PacketSubtype << std::endl;
+
 
     // ¬ывод данных полей Fields
     for (const auto& field : parsedPacket.Fields) {
@@ -20,6 +36,4 @@ int main() {
         }
         std::cout << std::endl;
     }
-
-    return 0;
 }

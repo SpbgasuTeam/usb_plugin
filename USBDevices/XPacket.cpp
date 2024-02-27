@@ -21,7 +21,7 @@ vector<uint8_t> XPacket::ToPacket() {
 
      
    // Сортировка полей по FieldID
-   // sort(Fields.begin(), Fields.end(), comp);
+   //sort(Fields.begin(), Fields.end(), comp);
 
     // Добавление полей в пакет
     for (const auto& field : Fields) {
@@ -50,19 +50,29 @@ XPacket XPacket::Parse(std::vector<uint8_t> packet) {
 
     uint8_t type = packet[3];
     uint8_t subtype = packet[4];
+
     XPacket xpacket = XPacket::Create(type, subtype);
 
     std::vector<uint8_t> fields(packet.begin() + 5, packet.end());
 
+    /*for (int i = 0; i < packet.size(); i++) {
+        cout <<  unsigned(packet[i]) << endl;
+    }*/
+    
+
+    /*for (int i = 0; i < fields.size(); i++) {
+        cout <<  unsigned(fields[i]) << endl;
+    }*/
+
     while (true) {
-        if (fields.size() < 2) {
+        if (fields.size() == 2) {
             break;
         }
 
         uint8_t id = fields[0];
         uint8_t size = fields[1];
         std::vector<uint8_t> contents;
-        if (size != 0 && fields.size() >= size + 2) {
+        if (size != 0) {
             contents.assign(fields.begin() + 2, fields.begin() + 2 + size);
         }
 
