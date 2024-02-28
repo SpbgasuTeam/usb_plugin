@@ -1,5 +1,5 @@
 #include "XPacket.h"
-#include "readCOMPorts.h"
+#include "COMPorts.h"
 
 void printParsedPacket(XPacket parsedPacket);
 
@@ -12,12 +12,21 @@ int main() {
     //printParsedPacket(parsedPacket);
     
     
-    readComPorts();
+    //readComPorts();
+     
+    const char* portName = "LCOM7";  // Номер COM-порта
+        const char* data = "OK";  // Данные для отправки
+
+    while (true) {
+        
+        writeToCOMPort(portName, data);
+        Sleep(1000);
+    }
+    
 
 
     return 0;
 }
-
 
 
 void printParsedPacket(XPacket parsedPacket) {

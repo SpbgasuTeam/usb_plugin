@@ -30,7 +30,7 @@ int readComPorts() {
 
     // Открываем COM-порт
     //for (int i = 0; i< 10; i++) {
-    hSerial = CreateFile(L"COM3", GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+    hSerial = CreateFile(sPortName_ar[2], GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 
     if (hSerial == INVALID_HANDLE_VALUE) {
         if (GetLastError() == ERROR_FILE_NOT_FOUND) {
@@ -42,7 +42,6 @@ int readComPorts() {
     }
     else {
         cout << "Порт " << "COM3" << " был прочитан" << endl;
-        Wait = 0;
     }
 
 
@@ -94,3 +93,83 @@ int readComPorts() {
 
 
 }
+
+void writeToCOMPort(const char* portName, const char* data) {
+    SetConsoleOutputCP(1251);
+
+    LPCTSTR sPortName = TEXT("COM6");
+
+    HANDLE hSerial;
+    DCB dcbSerialParams = { 0 };
+    COMMTIMEOUTS timeouts = { 0 };
+
+    // Открываем COM-порт
+    hSerial = CreateFile(sPortName, GENERIC_WRITE | GENERIC_READ, 0, 0, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+
+    if (hSerial == INVALID_HANDLE_VALUE) {
+        if (GetLastError() == ERROR_FILE_NOT_FOUND) {
+            cout << "COM порт не найден!" << std::endl;
+        }
+        else {
+            cout << "Ошибка открытия COM порта!" << std::endl;
+        }
+    }
+    else {
+        cout << "Порт " << "COM6" << " был прочитан" << endl;
+    }
+
+
+    dcbSerialParams.DCBlength = sizeof(dcbSerialParams);
+    if (!GetCommState(hSerial, &dcbSerialParams)) {
+        cout << "Ошибка получения параметров порта!" << std::endl;
+        CloseHandle(hSerial);
+        return;
+    }
+
+    dcbSerialParams.BaudRate = CBR_115200;;  // Устанавливаем скорость передачи
+    dcbSerialParams.ByteSize = 8;         // Устанавливаем количество бит данных
+    dcbSerialParams.StopBits = ONESTOPBIT; // Устанавливаем количество стоп-бит
+    dcbSerialParams.Parity = NOPARITY;     // Отключаем проверку четности
+
+    if (!SetCommState(hSerial, &dcbSerialParams)) {
+        cout << "Ошибка установки параметров порта!" << std::endl;
+        CloseHandle(hSerial);
+        return;
+    }
+
+     //Устанавливаем таймауты
+    timeouts.ReadIntervalTimeout = 50;
+    timeouts.ReadTotalTimeoutConstant = 50;
+    timeouts.ReadTotalTimeoutMultiplier = 10;
+    timeouts.WriteTotalTimeoutConstant = 50;
+    timeouts.WriteTotalTimeoutMultiplier = 10;
+    SetCommTimeouts(hSerial, &timeouts);
+
+    DWORD bytesWritten;
+    if (!WriteFile(hSerial, data, strlen(data), &bytesWritten, NULL)) {
+        std::cerr << "Ошибка записи в COM порт" << std::endl;
+        CloseHandle(hSerial);
+        return;
+    }
+    else {
+        std::cout << "Данные успешно отправлены в COM порт" << std::endl;
+    }
+    
+    Sleep(100);
+
+    char receivedData[2];
+    DWORD bytesRead;
+    if (ReadFile(hSerial, &receivedData, sizeof(receivedData), &bytesRead, NULL)) {
+        cout << "Прочитано: " << receivedData << endl;
+        // Делаем что-то с прочитанными данными
+    }
+    else {
+        cout << "Ошибка чтения данных с порта!" << endl;
+    }
+
+
+    
+
+    CloseHandle(hSerial);
+}
+
